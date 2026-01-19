@@ -1,0 +1,316 @@
+/* ==========================================
+   Hotspot Editor Styles
+   ========================================== */
+
+/* Editor Mode Indicator */
+body.editor-active #viewer {
+  cursor: default;
+}
+
+body.editor-active #controls {
+  display: none;
+}
+
+/* ==========================================
+   Toolbar
+   ========================================== */
+
+.editor-toolbar {
+  position: fixed;
+  top: var(--spacing-md);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--color-border);
+  margin: 0 var(--spacing-xs);
+}
+
+.toolbar-spacer {
+  flex: 1;
+  min-width: var(--spacing-md);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-width: 40px;
+  height: 40px;
+  padding: 0 var(--spacing-sm);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toolbar-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+}
+
+.toolbar-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--color-accent);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toolbar-btn-primary {
+  background: var(--color-accent);
+  color: white;
+  padding: 0 var(--spacing-md);
+}
+
+.toolbar-btn-primary:hover:not(:disabled) {
+  background: #5558e3;
+  color: white;
+}
+
+.toolbar-btn-primary.saved {
+  background: #22c55e;
+}
+
+.toolbar-btn span {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* ==========================================
+   Editor Panel
+   ========================================== */
+
+.editor-panel {
+  position: fixed;
+  top: var(--spacing-xl);
+  right: var(--spacing-lg);
+  width: 320px;
+  max-height: calc(100vh - 120px);
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  transform: translateX(calc(100% + var(--spacing-lg)));
+  opacity: 0;
+  transition: all var(--transition-base);
+  overflow: hidden;
+}
+
+.editor-panel.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: var(--glass-border);
+}
+
+.panel-header h3 {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+.panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.panel-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+}
+
+.panel-content {
+  padding: var(--spacing-md);
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+.panel-empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+/* ==========================================
+   Hotspot Form
+   ========================================== */
+
+.hotspot-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-group label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group .mt-sm {
+  margin-top: var(--spacing-xs);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+}
+
+.form-actions .btn-primary {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.form-actions .btn-primary:hover {
+  background: #5558e3;
+}
+
+/* ==========================================
+   Editor Mode Hotspots
+   ========================================== */
+
+.editor-hotspot {
+  transition: all var(--transition-fast);
+}
+
+.editor-hotspot.editor-mode {
+  cursor: pointer;
+}
+
+.editor-hotspot.editor-mode:hover {
+  transform: scale(1.2);
+}
+
+.editor-hotspot.selected {
+  transform: scale(1.3);
+  box-shadow: 
+    0 0 0 3px var(--color-accent),
+    0 0 20px var(--color-accent-glow);
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+
+@media (max-width: 768px) {
+  .editor-toolbar {
+    top: auto;
+    bottom: var(--spacing-md);
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    transform: none;
+    overflow-x: auto;
+  }
+
+  .toolbar-spacer {
+    display: none;
+  }
+
+  .editor-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+  }
+
+  .editor-panel.visible {
+    transform: translateY(0);
+  }
+}

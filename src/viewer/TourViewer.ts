@@ -395,6 +395,35 @@ export class TourViewer {
   }
 
   /**
+   * Get the internal Photo Sphere Viewer instance
+   */
+  getViewer(): Viewer | null {
+    return this.viewer;
+  }
+
+  /**
+   * Get the markers plugin instance
+   */
+  getMarkersPlugin(): MarkersPlugin | null {
+    return this.markersPlugin;
+  }
+
+  /**
+   * Get the current tour configuration
+   */
+  getTour(): Tour | null {
+    return this.tour;
+  }
+
+  /**
+   * Get the current panorama
+   */
+  getCurrentPanorama(): Panorama | undefined {
+    if (!this.tour || !this.state.currentPanorama) return undefined;
+    return this.tour.panoramas.find((p) => p.id === this.state.currentPanorama);
+  }
+
+  /**
    * Destroy the viewer
    */
   destroy(): void {

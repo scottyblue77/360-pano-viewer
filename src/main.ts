@@ -3,8 +3,10 @@
  */
 
 import { TourViewer } from './viewer/TourViewer';
+import { HotspotEditor } from './editor/HotspotEditor';
 import type { Tour } from './types';
 import './styles/main.css';
+import './styles/editor.css';
 
 // Demo tour configuration with a sample panorama
 // In production, this would be loaded from the API
@@ -104,22 +106,48 @@ demoTour.panoramas[1].hotspots.push({
   targetPanorama: 'pano-1',
 });
 
-// Initialize viewer
+// Initialize viewer and editor
 let viewer: TourViewer | null = null;
+let editor: HotspotEditor | null = null;
 
 async function init() {
   const loadingEl = document.getElementById('loading');
   
+  // Check for uploaded panorama in localStorage
+  const uploadedPanoramaStr = localStorage.getItem('uploadedPanorama');
+  let tourToUse = demoTour;
+  
+  if (uploadedPanoramaStr) {
+    try {
+      const uploadedPanorama = JSON.parse(uploadedPanoramaStr);
+      console.log('📷 Using uploaded panorama:', uploadedPanorama.id);
+      tourToUse = {
+        ...demoTour,
+        id: 'uploaded-tour',
+        name: 'Hochgeladene Tour',
+        panoramas: [uploadedPanorama],
+      };
+      // Clear after use
+      localStorage.removeItem('uploadedPanorama');
+    } catch (e) {
+      console.warn('Could not parse uploaded panorama:', e);
+    }
+  }
+  
   try {
     viewer = new TourViewer({
       container: '#viewer',
-      tour: demoTour,
+      tour: tourToUse,
       onReady: () => {
         console.log('🌐 360° Viewer ready');
         loadingEl?.classList.add('hidden');
       },
       onPanoramaChange: (panoramaId) => {
         console.log(`📍 Switched to panorama: ${panoramaId}`);
+        // Re-initialize editor for new panorama if active
+        if (editor?.getIsActive()) {
+          initEditor();
+        }
       },
       onHotspotClick: (hotspot) => {
         console.log(`🔵 Hotspot clicked:`, hotspot);
@@ -138,6 +166,45 @@ async function init() {
   }
 }
 
+function initEditor() {
+  if (!viewer) return;
+  
+  const psvViewer = viewer.getViewer();
+  const markersPlugin = viewer.getMarkersPlugin();
+  const panorama = viewer.getCurrentPanorama();
+  
+  if (!psvViewer || !markersPlugin || !panorama) {
+    console.warn('Cannot initialize editor: viewer not ready');
+    return;
+  }
+  
+  // Destroy existing editor
+  editor?.deactivate();
+  
+  editor = new HotspotEditor({
+    viewer: psvViewer,
+    markersPlugin,
+    panorama,
+    onHotspotAdd: (hotspot) => {
+      console.log('➕ Hotspot added:', hotspot);
+    },
+    onHotspotUpdate: (hotspot) => {
+      console.log('✏️ Hotspot updated:', hotspot);
+    },
+    onHotspotDelete: (id) => {
+      console.log('🗑️ Hotspot deleted:', id);
+    },
+    onSave: (updatedPanorama) => {
+      console.log('💾 Panorama saved:', updatedPanorama);
+      // In production, this would save to the API
+      alert('Konfiguration gespeichert! (In der Konsole als JSON sichtbar)');
+      console.log('JSON:', JSON.stringify(updatedPanorama, null, 2));
+    },
+  });
+  
+  editor.activate();
+}
+
 // Set up control buttons
 function setupControls() {
   document.getElementById('fullscreen-btn')?.addEventListener('click', () => {
@@ -150,6 +217,15 @@ function setupControls() {
 
   document.getElementById('zoom-out-btn')?.addEventListener('click', () => {
     viewer?.zoomOut();
+  });
+
+  // Edit button
+  document.getElementById('edit-btn')?.addEventListener('click', () => {
+    if (editor?.getIsActive()) {
+      editor.deactivate();
+    } else {
+      initEditor();
+    }
   });
 
   // Keyboard shortcuts
@@ -171,6 +247,14 @@ function setupControls() {
       case '-':
       case '_':
         viewer?.zoomOut();
+        break;
+      case 'e':
+      case 'E':
+        if (editor?.getIsActive()) {
+          editor.deactivate();
+        } else {
+          initEditor();
+        }
         break;
     }
   });
