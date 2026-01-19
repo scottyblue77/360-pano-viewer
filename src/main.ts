@@ -4,6 +4,7 @@
 
 import { TourViewer } from './viewer/TourViewer';
 import { HotspotEditor } from './editor/HotspotEditor';
+import { showEmbedModal } from './components/EmbedGenerator';
 import type { Tour } from './types';
 import './styles/main.css';
 import './styles/editor.css';
@@ -225,6 +226,14 @@ function setupControls() {
       editor.deactivate();
     } else {
       initEditor();
+    }
+  });
+
+  // Share button
+  document.getElementById('share-btn')?.addEventListener('click', () => {
+    const tour = viewer?.getTour();
+    if (tour) {
+      showEmbedModal(tour.id, tour.name);
     }
   });
 
