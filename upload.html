@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0a0a0f" />
+    <title>Panorama Upload - 360° Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <a href="/" class="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <ellipse cx="12" cy="12" rx="10" ry="4"/>
+            <line x1="12" y1="2" x2="12" y2="22"/>
+          </svg>
+          <span>360° Viewer</span>
+        </a>
+        <nav>
+          <a href="/" class="nav-link">Viewer</a>
+          <a href="/upload.html" class="nav-link active">Upload</a>
+        </nav>
+      </header>
+      
+      <main class="upload-page">
+        <div id="upload-container"></div>
+      </main>
+    </div>
+    <script type="module" src="/src/upload.ts"></script>
+  </body>
+</html>

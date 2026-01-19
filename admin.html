@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - 360° Panorama Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --color-bg: #0a0a0f;
+        --color-surface: rgba(20, 20, 30, 0.85);
+        --color-border: rgba(255, 255, 255, 0.08);
+        --color-text: #f0f0f5;
+        --color-text-muted: rgba(240, 240, 245, 0.6);
+        --color-accent: #6366f1;
+        --color-success: #22c55e;
+        --color-error: #ef4444;
+        --color-warning: #f59e0b;
+      }
+      
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        min-height: 100vh;
+        padding: 2rem;
+      }
+      
+      .container { max-width: 1000px; margin: 0 auto; }
+      
+      h1 { 
+        font-size: 1.5rem; 
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      
+      h2 { 
+        font-size: 1rem; 
+        color: var(--color-text-muted);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      
+      .status-success { background: rgba(34, 197, 94, 0.15); color: var(--color-success); }
+      .status-error { background: rgba(239, 68, 68, 0.15); color: var(--color-error); }
+      .status-loading { background: rgba(99, 102, 241, 0.15); color: var(--color-accent); }
+      
+      .test-results {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .test-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+      }
+      
+      .test-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      
+      .test-icon.success { color: var(--color-success); }
+      .test-icon.error { color: var(--color-error); }
+      .test-icon.loading { color: var(--color-accent); animation: spin 1s linear infinite; }
+      
+      @keyframes spin { to { transform: rotate(360deg); } }
+      
+      .test-content { flex: 1; }
+      .test-title { font-weight: 500; margin-bottom: 0.25rem; }
+      .test-details { font-size: 0.875rem; color: var(--color-text-muted); }
+      
+      .panorama-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+      
+      .panorama-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      
+      .panorama-preview {
+        width: 100%;
+        aspect-ratio: 2/1;
+        object-fit: cover;
+        background: var(--color-bg);
+      }
+      
+      .panorama-info {
+        padding: 0.75rem;
+      }
+      
+      .panorama-id {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--color-accent);
+        margin-bottom: 0.5rem;
+      }
+      
+      .panorama-files {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+      }
+      
+      .panorama-size {
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--color-accent);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      
+      .btn:hover { background: #5558e3; }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+      }
+      
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--color-text-muted);
+      }
+      
+      .code-block {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin-top: 0.5rem;
+      }
+      
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .nav-links a {
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+      }
+      
+      .nav-links a:hover {
+        color: var(--color-text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="/">← Zurück zum Viewer</a>
+        <a href="/upload.html">Upload</a>
+      </div>
+      
+      <h1>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Admin Dashboard
+      </h1>
+      
+      <!-- Blob Storage Test -->
+      <div class="card">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Blob Storage Status
+        </h2>
+        <div id="blobTest">
+          <div class="test-step">
+            <svg class="test-icon loading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <div class="test-content">
+              <div class="test-title">Teste Blob Storage...</div>
+              <div class="test-details">Bitte warten</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem;">
+          <button class="btn" id="runTestBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Test erneut ausführen
+          </button>
+        </div>
+      </div>
+      
+      <!-- Uploaded Panoramas -->
+      <div class="card">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Hochgeladene Panoramen
+          <span id="panoramaCount" class="status-badge status-loading">Lädt...</span>
+        </h2>
+        <div id="panoramaList">
+          <div class="empty-state">Lade Panoramen...</div>
+        </div>
+        <div style="margin-top: 1rem;">
+          <button class="btn btn-secondary" id="refreshPanoramasBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Aktualisieren
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Test Blob Storage
+      async function runBlobTest() {
+        const container = document.getElementById('blobTest');
+        container.innerHTML = `
+          <div class="test-step">
+            <svg class="test-icon loading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <div class="test-content">
+              <div class="test-title">Teste Blob Storage...</div>
+              <div class="test-details">Bitte warten</div>
+            </div>
+          </div>
+        `;
+        
+        try {
+          const res = await fetch('/api/test-blob');
+          const data = await res.json();
+          
+          container.innerHTML = data.results.map(r => `
+            <div class="test-step">
+              <svg class="test-icon ${r.status}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                ${r.status === 'success' 
+                  ? '<polyline points="20 6 9 17 4 12"/>' 
+                  : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}
+              </svg>
+              <div class="test-content">
+                <div class="test-title">${r.step}</div>
+                <div class="test-details">${r.details || ''}</div>
+                ${r.data ? `<div class="code-block">${JSON.stringify(r.data, null, 2)}</div>` : ''}
+              </div>
+            </div>
+          `).join('');
+          
+          if (data.summary) {
+            container.innerHTML += `
+              <div class="test-step" style="background: ${data.success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'}">
+                <div class="test-content">
+                  <div class="test-title" style="color: ${data.success ? 'var(--color-success)' : 'var(--color-error)'}">${data.summary}</div>
+                </div>
+              </div>
+            `;
+          }
+        } catch (error) {
+          container.innerHTML = `
+            <div class="test-step">
+              <svg class="test-icon error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              <div class="test-content">
+                <div class="test-title">Fehler beim Testen</div>
+                <div class="test-details">${error.message}</div>
+              </div>
+            </div>
+          `;
+        }
+      }
+      
+      // Load Panoramas
+      async function loadPanoramas() {
+        const container = document.getElementById('panoramaList');
+        const countBadge = document.getElementById('panoramaCount');
+        
+        try {
+          const res = await fetch('/api/list-panoramas');
+          const data = await res.json();
+          
+          if (data.success && data.panoramas.length > 0) {
+            countBadge.className = 'status-badge status-success';
+            countBadge.textContent = `${data.count} Panoramen`;
+            
+            container.innerHTML = `
+              <div class="panorama-grid">
+                ${data.panoramas.map(p => `
+                  <div class="panorama-card">
+                    <img 
+                      class="panorama-preview" 
+                      src="${p.files.find(f => f.resolution === 'low')?.url || p.files[0]?.url}" 
+                      alt="${p.id}"
+                      loading="lazy"
+                    />
+                    <div class="panorama-info">
+                      <div class="panorama-id">${p.id}</div>
+                      <div class="panorama-files">
+                        ${p.files.map(f => `${f.resolution}: ${(f.size / 1024).toFixed(0)}KB`).join(' | ')}
+                      </div>
+                      <div class="panorama-size" style="margin-top: 0.5rem;">
+                        Gesamt: ${(p.totalSize / 1024 / 1024).toFixed(2)} MB
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else {
+            countBadge.className = 'status-badge';
+            countBadge.textContent = '0 Panoramen';
+            container.innerHTML = `
+              <div class="empty-state">
+                <p>Noch keine Panoramen hochgeladen.</p>
+                <a href="/upload.html" class="btn" style="margin-top: 1rem;">Panorama hochladen</a>
+              </div>
+            `;
+          }
+        } catch (error) {
+          countBadge.className = 'status-badge status-error';
+          countBadge.textContent = 'Fehler';
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>Fehler beim Laden: ${error.message}</p>
+            </div>
+          `;
+        }
+      }
+      
+      // Event Listeners
+      document.getElementById('runTestBtn').addEventListener('click', runBlobTest);
+      document.getElementById('refreshPanoramasBtn').addEventListener('click', loadPanoramas);
+      
+      // Initial load
+      runBlobTest();
+      loadPanoramas();
+    </script>
+  </body>
+</html>
